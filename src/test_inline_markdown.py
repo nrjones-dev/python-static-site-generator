@@ -106,11 +106,11 @@ class TestExtractMarkdown(unittest.TestCase):
         matches = extract_markdown_images(text)
 
         self.assertListEqual([], matches)
-    
+
     def test_empty_url_image(self):
         text = "![alt]()"
         matches = extract_markdown_images(text)
-        
+
         self.assertListEqual([("alt", "")], matches)
 
     def test_missing_alt_text_image(self):
