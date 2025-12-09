@@ -38,3 +38,34 @@ def extract_markdown_links(text):
     url_links = r"\(([^)]*)\)"
     matches = re.findall(alt_text + url_links, text)
     return matches
+
+
+def split_nodes_media(old_nodes, extract_func, text_type):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type is not TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        text_links = extract_func(node.text)
+        if not text_links:
+            new_nodes.append(node)
+            continue
+
+        original_text = node.text
+        for alt, url in text_links:
+            if text_type == TextType.IMAGE:
+                text_sections = original_text.split(f"![{alt}]({url})", 1)
+            else:
+                text_sections = original_text.split(f"[{alt}]({url})", 1)
+
+            if len(text_sections) != 2:
+                raise ValueError("Invalid markdown, image section not closed")
+            if text_sections[0]:
+                new_nodes.append(TextNode(text_sections[0], TextType.TEXT))
+            new_nodes.append(TextNode(alt, text_type, url))
+            original_text = text_sections[1]
+        if original_text:
+            new_nodes.append(TextNode(original_text, TextType.TEXT))
+
+    return new_nodes
