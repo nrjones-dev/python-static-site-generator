@@ -54,7 +54,6 @@ def all_lines_start_with(lines, prefix):
     return True
 
 
-##########
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
     children = []
@@ -92,9 +91,10 @@ def text_to_children(text):
 
 def paragraph_to_html_node(block):
     lines = block.split("\n")
-    paragraph = " ".join(lines)
+    cleaned_lines = [line.strip() for line in lines]
+    paragraph = " ".join(cleaned_lines)
     children = text_to_children(paragraph)
-    return ParentNode(tag="p", children=children)
+    return ParentNode("p", children)
 
 
 def quote_to_html_node(block):
@@ -111,46 +111,44 @@ def quote_to_html_node(block):
 
 def code_to_html_node(block):
     if not block.startswith("```") or not block.endswith("```"):
-        raise ValueError("Invalid code block")
-    lines = block.split("\n")
-    inner_lines = lines[1:-1]
-    result = "\n".join(inner_lines) + "\n"
-    raw_result = TextNode(result, TextType.CODE)
-    code_leaf = text_node_to_html_node(raw_result)
-    return ParentNode("pre", [code_leaf])
+        raise ValueError("invalid code block")
+    text = block[4:-3]
+    raw_text_node = TextNode(text, TextType.TEXT)
+    child = text_node_to_html_node(raw_text_node)
+    code = ParentNode("code", [child])
+    return ParentNode("pre", [code])
 
 
-# learning examples
-
-# def olist_to_html_node(block):
-#     items = block.split("\n")
-#     html_items = []
-#     for item in items:
-#         parts = item.split(". ", 1)
-#         text = parts[1]
-#         children = text_to_children(text)
-#         html_items.append(ParentNode("li", children))
-#     return ParentNode("ol", html_items)
+def olist_to_html_node(block):
+    items = block.split("\n")
+    list_items = []
+    for item in items:
+        numbered_item = item.split(". ", 1)[1]
+        children = text_to_children(numbered_item)
+        text_node = ParentNode("li", children)
+        list_items.append(text_node)
+    return ParentNode("ol", list_items)
 
 
-# def ulist_to_html_node(block):
-#     items = block.split("\n")
-#     html_items = []
-#     for item in items:
-#         text = item[2:]
-#         children = text_to_children(text)
-#         html_items.append(ParentNode("li", children))
-#     return ParentNode("ul", html_items)
+def ulist_to_html_node(block):
+    items = block.split("\n")
+    list_items = []
+    for item in items:
+        children = text_to_children(item[2:])
+        text_node = ParentNode("li", children)
+        list_items.append(text_node)
+    return ParentNode("ul", list_items)
 
-# def heading_to_html_node(block):
-#     level = 0
-#     for char in block:
-#         if char == "#":
-#             level += 1
-#         else:
-#             break
-#     if level + 1 >= len(block):
-#         raise ValueError(f"invalid heading level: {level}")
-#     text = block[level + 1 :]
-#     children = text_to_children(text)
-#     return ParentNode(f"h{level}", children)
+
+def heading_to_html_node(block):
+    heading_count = 0
+    for char in block:
+        if char == "#":
+            heading_count += 1
+        else:
+            break
+    if heading_count + 1 >= len(block):
+        raise ValueError("Invalid heading level, no content found")
+    heading_text = block[heading_count + 1 :]
+    children = text_to_children(heading_text)
+    return ParentNode(f"h{heading_count}", children)
