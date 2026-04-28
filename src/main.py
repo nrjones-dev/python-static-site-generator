@@ -1,5 +1,10 @@
-from html_node import HTMLNode, LeafNode
-from text_node import TextNode, TextType
+import os
+import shutil
+
+from src.html_node import HTMLNode, LeafNode
+from src.text_node import TextNode, TextType
+
+PUBLIC_PATH = "public"
 
 
 def main():
@@ -11,7 +16,20 @@ def main():
     print(new_leaf_html_node)
 
 
+def clr_dir():
+    if os.path.exists(PUBLIC_PATH):
+        for item in os.listdir(PUBLIC_PATH):
+            path = os.path.join(PUBLIC_PATH, item)
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
+
+
+def copy_content():
+    pass
 
 
 if __name__ == "__main__":
     main()
+    clr_dir()

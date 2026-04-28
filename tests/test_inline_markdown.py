@@ -1,13 +1,13 @@
 import unittest
 
-from inline_markdown import (
+from src.inline_markdown import (
     extract_markdown_images,
     extract_markdown_links,
     split_nodes_delimiter,
     split_nodes_media,
     text_to_textnodes,
 )
-from text_node import TextNode, TextType
+from src.text_node import TextNode, TextType
 
 
 class TestSplitDelimiter(unittest.TestCase):

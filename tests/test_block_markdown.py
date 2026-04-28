@@ -1,6 +1,6 @@
 import unittest
 
-from block_markdown import (
+from src.block_markdown import (
     BlockType,
     all_lines_start_with,
     block_to_block_type,
@@ -125,4 +125,53 @@ the **same** even with inline stuff
         self.assertEqual(
             html,
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
+
+    def test_lists(self):
+        md = """
+- List item 1
+- List item 2
+- List item _three_
+
+1. Ordered List 1
+2. Ordered list 2
+3. ordered list 3
+"""
+        node = markdown_to_html_node(md)
+        html_block = node.to_html()
+        self.assertEqual(
+            html_block,
+            "<div><ul><li>List item 1</li><li>List item 2</li><li>List item <i>three</i></li></ul><ol><li>Ordered List 1</li><li>Ordered list 2</li><li>ordered list 3</li></ol></div>",
+        )
+
+    def test_headings(self):
+        md = """
+# Header 1
+
+some normal text
+
+## Header 2
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>Header 1</h1><p>some normal text</p><h2>Header 2</h2></div>",
+        )
+
+    def test_blockquote(self):
+        md = """
+> This is a
+> blockquote block
+
+this is paragraph text
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>This is a blockquote block</blockquote><p>this is paragraph text</p></div>",
         )
